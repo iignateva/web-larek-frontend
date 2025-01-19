@@ -15,9 +15,9 @@ export interface IProduct {
   price: number | null;
 }
 
-export interface IProducts {
+export interface IProducts<T> {
   total: number;
-  items: IProduct[];
+  items: T[];
 }
 
 export enum PaymentType {
@@ -46,7 +46,7 @@ export interface IApiErrorResponse {
 }
 
 export interface WebLarekApi {
-  getProducts(): Promise<IProducts>
+  getProducts(): Promise<IProducts<IProduct>>
   getProduct(id: string): Promise<IProduct>
 
   confirmOrder(order: IOrderRequest): Promise<OrderConfirmation>
@@ -58,16 +58,16 @@ export interface IOrder {
 
 export interface IShoppingCart<T> {
 	addItem(item: T): void;
-	deleteItem(item: T): void;
+	deleteItem(id: string): void;
 	order(): void;
-	get items(): Map<T, number>;
-	get totalCount(): number;
+	items: T[];
+	totalCount: number;
 }
 
 
-export interface IAppState {
-	products: IProducts;
-	shoppingCart: string[];
+export interface IAppState<T> {
+	products: IProducts<T>;
+	shoppingCart: IShoppingCart<T>;
 	preview: string | null;
 	order: IOrder | null;
 	loading: boolean;

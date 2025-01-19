@@ -13,7 +13,7 @@ export class Page implements IHeader, ICatalog {
 
 	constructor(protected events: IEvents) {
     this._wrapper = ensureElement<HTMLElement>('.page__wrapper');
-		this._header = new Header(ensureElement<HTMLElement>('.header__container'));
+		this._header = new Header(ensureElement<HTMLElement>('.header__container'), events);
 		this._catalog = new Catalog(ensureElement<HTMLElement>('.gallery'));
     this._locked = false;
 	}

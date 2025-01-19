@@ -16,8 +16,8 @@ export class WebLarek implements WebLarekApi {
 		this._cdnUrl = cdnUrl;
 	}
 
-	getProducts(): Promise<IProducts> {
-		return this._api.get('/product/').then((products: IProducts) => {
+	getProducts(): Promise<IProducts<IProduct>> {
+		return this._api.get('/product/').then((products: IProducts<IProduct>) => {
 			const withUpdatedImages = products.items.map((product: IProduct) =>
 				this.enrichImageUrl(product)
 			);

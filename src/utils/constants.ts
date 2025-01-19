@@ -9,4 +9,12 @@ export enum EVENT {
 	CatalogChanged = 'catalog:changed',
 	ModalOpen = 'modal:open',
 	ModalClose = 'modal:close',
+	ShoppingCartChanged = 'shoppingCart:changed',
+	CatalogItemAddToShoppingCart = 'catalog:item:addToShoppingCart',
+	CatalogItemDeleteFromShoppingCart = 'catalog:item:deleteFromShoppingCart',
+	ShoppingCartItemDelete = 'shoppingCart:item:delete',
+  ShoppingCartCreateOrder = 'shoppingCart:order:create',
+
+  CatalogItemAdded = 'catalog:item:added',
+  CatalogItemDeleted = 'catalog:item:deleted'
 }

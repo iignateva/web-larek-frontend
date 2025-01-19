@@ -1,7 +1,10 @@
+import { EVENT } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
+import { EventEmitter } from "../base/events";
 
 export interface ICatalogItem {
+  id: string;
 	category: string;
 	title: string;
   text: string;
@@ -44,11 +47,8 @@ export class CatalogItem extends Component<ICatalogItem> {
 
 	set category(category: string) {
 		this.setText(this._category, category);
-		this.toggleClass(
-			this._category,
-			`card__category_${this.getCategoryCssClassName(category)}`,
-      true
-		);
+    const cssClassName = this.getCategoryCssClassName(category);
+		this.toggleClass(this._category, `card__category_${cssClassName}`, true);
 	}
 
 	set title(title: string) {
@@ -76,20 +76,59 @@ export class CatalogItem extends Component<ICatalogItem> {
 		return this;
 	}
 
-	getCategoryCssClassName(category: string): string {
+	private getCategoryCssClassName(category: string): string {
 		return mapCategoryToCssClassName.get(category);
 	}
 }
 
 export class CatalogItemPreview extends CatalogItem {
+  protected _id: string;
 	protected _text: HTMLElement;
+  protected _toShoppingCartButton: HTMLElement;
+  protected _isInShoppingCart: boolean;
+  protected _events: EventEmitter;
 
-	constructor(container: HTMLElement) {
+	constructor(container: HTMLElement, events: EventEmitter) {
     super(container);
-    this._text = ensureElement<HTMLElement>('.card__text', container);
+    this._events = events;
+    this._text = ensureElement('.card__text', container);
+    this._toShoppingCartButton = ensureElement('.card__button', container);
+
+    this._toShoppingCartButton.addEventListener('click', () => {
+      if (this._isInShoppingCart) {
+        this._events.emit(EVENT.CatalogItemDeleteFromShoppingCart, {id: this._id});
+        this._events.emit(EVENT.CatalogItemDeleted);
+      } else {
+        this._events.emit(EVENT.CatalogItemAddToShoppingCart, { id: this._id });
+        this._events.emit(EVENT.CatalogItemAdded);
+      }
+    })
   };
+
+  set id(id:string) {
+    this._id = id;
+  }
 
   set text(description: string) {
     super.setText(this._text, description);
+  }
+
+  set category(category: string) {
+		for (let [key, value] of this._category.classList.entries()) {
+      if (value !== category && value.startsWith('card__category_')) {
+				this._category.classList.remove(value);
+			}
+		}
+    super.category = category;
+  }
+
+  set inShoppingCart(isInShoppingCart: boolean) {
+    this._isInShoppingCart = isInShoppingCart;
+
+    if (this._isInShoppingCart) {
+			this.setText(this._toShoppingCartButton, 'Удалить из корзины');
+		} else {
+			this.setText(this._toShoppingCartButton, 'В корзину');
+		}
   }
 }

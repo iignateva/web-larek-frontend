@@ -1,11 +1,11 @@
 import {
-	IOrderRequest,
 	IProduct,
 	IProducts,
 	OrderConfirmation,
 	WebLarekApi,
 } from '../types';
 import { Api } from './base/api';
+import { IOrderRequest } from './model/Order';
 
 export class WebLarek implements WebLarekApi {
 	private _api: Api;

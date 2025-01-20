@@ -28,13 +28,21 @@ export class ShoppingCart implements IShoppingCart<IProduct> {
 		}
 	}
 
-	order() {}
-
 	get items(): IProduct[] {
 		return this._items;
 	}
 
 	get totalCount(): number {
 		return this._items.length;
+	}
+
+	get total(): number {
+		if (this._items.length > 0) {
+			return this._items
+				.map((it) => it.price ?? 0)
+				.reduce((totalPrice, itemPrice) => totalPrice + itemPrice);
+		} else {
+			return 0;
+		}
 	}
 }

@@ -13,8 +13,15 @@ export enum EVENT {
 	CatalogItemAddToShoppingCart = 'catalog:item:addToShoppingCart',
 	CatalogItemDeleteFromShoppingCart = 'catalog:item:deleteFromShoppingCart',
 	ShoppingCartItemDelete = 'shoppingCart:item:delete',
-  ShoppingCartCreateOrder = 'shoppingCart:order:create',
+	ShoppingCartCreateOrder = 'shoppingCart:order:create',
 
-  CatalogItemAdded = 'catalog:item:added',
-  CatalogItemDeleted = 'catalog:item:deleted'
+	CatalogItemAdded = 'catalog:item:added',
+	CatalogItemDeleted = 'catalog:item:deleted',
+
+	OrderDeliveryDataReady = 'order:deliveryData:ready',
+	OrderDataReady = 'order:data:ready',
+
+	OrderSuccesfullyDone = 'order:success:done',
+
+	NeedCloseModalView = 'need:close:modalView'
 }

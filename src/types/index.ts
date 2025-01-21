@@ -1,6 +1,3 @@
-import {IOrderRequest } from "../components/model/Order";
-
-
 export enum PaymentType {
 	ONLINE = 'online',
 	ON_RECEIVING = 'при получении',
@@ -23,29 +20,37 @@ export interface IProduct {
   price: number | null;
 }
 
-export interface IProducts<T> {
+export interface IItems<T> {
   total: number;
   items: T[];
 }
 
-export type OrderConfirmation = IOrderResponse | IApiErrorResponse;
+export interface IOrder {
+	payment: PaymentType;
+	email: string;
+	phone: string;
+	address: string;
+	total: number;
+	items: string[];
+}
 
 export interface IOrderResponse {
-  id: string;
-  total: number;
+	id: string;
+	total: number;
 }
 
 export interface IApiErrorResponse {
   error: string;
 }
 
+export type OrderConfirmation = IOrderResponse | IApiErrorResponse;
+
 export interface WebLarekApi {
-  getProducts(): Promise<IProducts<IProduct>>
+  getProducts(): Promise<IItems<IProduct>>
   getProduct(id: string): Promise<IProduct>
 
-  confirmOrder(order: IOrderRequest): Promise<OrderConfirmation>
+  confirmOrder(order: IOrder): Promise<OrderConfirmation>
 }
-
 
 export interface IShoppingCart<T> {
 	addItem(item: T): void;
@@ -54,11 +59,10 @@ export interface IShoppingCart<T> {
 	total: number;
 }
 
-
 export interface IAppState<T> {
-	products: IProducts<T>;
+	products: IItems<T>;
 	shoppingCart: IShoppingCart<T>;
 	preview: string | null;
-	order: IOrderRequest | null;
+	order: IOrder | null;
 	loading: boolean;
 }

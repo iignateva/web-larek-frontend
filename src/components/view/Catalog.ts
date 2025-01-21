@@ -1,19 +1,27 @@
-import { ensureElement } from '../../utils/utils';
+import { cloneTemplate } from '../../utils/utils';
 import { Component } from '../base/Component';
-import { CatalogItem } from './CatalogItem';
+import { IEvents } from '../base/events';
+import { CatalogItemView, ICatalogItemView } from './CatalogItemView';
 
-export interface ICatalog {
-	catalog: CatalogItem[];
+export interface ICatalogView {
+	catalog: ICatalogItemView[];
 }
 
-export class Catalog extends Component<ICatalog> {
+export class Catalog extends Component<ICatalogView> {
+protected _itemTemplate: HTMLTemplateElement;
+protected _events: IEvents;
 
-	constructor(container: HTMLElement) {
+	constructor(container: HTMLElement, events: IEvents, itemTemplate: HTMLTemplateElement) {
 		super(container);
+		this._events = events;
+		this._itemTemplate = itemTemplate;
 	}
 
-	set catalog(items: CatalogItem[]) {
-		const itemsEls: HTMLElement[] = items.map(item => item.render())
+	set catalog(items: ICatalogItemView[]) {
+		const itemsEls: HTMLElement[] = items.map(item => {
+			const templateProduct = cloneTemplate(this._itemTemplate);
+			return new CatalogItemView(templateProduct, this._events).render(item);
+		});
 		this.container.replaceChildren(...itemsEls);
 	}
 }

@@ -1,16 +1,7 @@
-import { PaymentType } from "../../types";
+import { IOrder, PaymentType } from "../../types";
 import { Model } from "../base/Model";
 
-export interface IOrderRequest {
-	payment: PaymentType;
-	email: string;
-	phone: string;
-	address: string;
-	total: number;
-	items: string[];
-}
-
-export class Order extends Model<IOrderRequest>{
+export class Order extends Model<IOrder>{
 	items: string[];
 	total: number;
 	payment: PaymentType;

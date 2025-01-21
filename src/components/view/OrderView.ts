@@ -1,5 +1,5 @@
 import { PaymentType } from '../../types';
-import { EVENT } from '../../utils/constants';
+import { EVENT, settings } from '../../utils/constants';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
@@ -22,11 +22,11 @@ export class OrderView extends Component<IOrderView> {
 		super(container);
 		this._events = events;
 
-		this._address = ensureElement<HTMLInputElement>('.form__input', container);
-		this._payOnline = ensureElement('#paymentTypeCard', container);
-		this._payOnReceiving = ensureElement('#paymentTypeCash', container);
-		this._submitButton = ensureElement('.order__button', container);
-		this._formError = ensureElement('.form__errors', container);
+		this._address = ensureElement<HTMLInputElement>(settings.order.address, container);
+		this._payOnline = ensureElement(settings.order.payment.online, container);
+		this._payOnReceiving = ensureElement(settings.order.payment.onReceiving, container);
+		this._submitButton = ensureElement(settings.order.buttonToOrder, container);
+		this._formError = ensureElement(settings.order.formErrors, container);
 
 		this._payOnline.addEventListener('click', () => {
 			this.setPaymentType(PaymentType.ONLINE);
@@ -60,12 +60,12 @@ export class OrderView extends Component<IOrderView> {
 		this._selectedPaymentType = paymentType;
 		this.toggleClass(
 			this._payOnline,
-			'button_alt-active',
+			settings.order.classes.buttonActive,
 			paymentType === PaymentType.ONLINE
 		);
 		this.toggleClass(
 			this._payOnReceiving,
-			'button_alt-active',
+			settings.order.classes.buttonActive,
 			paymentType === PaymentType.ON_RECEIVING
 		);
 	}

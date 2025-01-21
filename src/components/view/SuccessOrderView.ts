@@ -1,4 +1,4 @@
-import { EVENT } from '../../utils/constants';
+import { EVENT, settings } from '../../utils/constants';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
@@ -15,9 +15,9 @@ export class SuccessOrderView extends Component<ISuccessOrder> {
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
-		this._orderNumber = ensureElement('.order-success__title', container);
-		this._totalPrice = ensureElement('.order-success__description', container);
-		this._buttonSuccess = ensureElement('.order-success__close', container);
+		this._orderNumber = ensureElement(settings.order.success.title, container);
+		this._totalPrice = ensureElement(settings.order.success.desc, container);
+		this._buttonSuccess = ensureElement(settings.order.success.closeButton, container);
 
 		events.emit(EVENT.OrderSuccesfullyDone);
 
@@ -27,7 +27,7 @@ export class SuccessOrderView extends Component<ISuccessOrder> {
 	}
 
 	set totalPrice(totalPrice: number) {
-		this.setText(this._totalPrice, `списано ${totalPrice} синапсов`);
+		this.setText(this._totalPrice, `списано ${totalPrice} ${settings.units}`);
 	}
 
 	set orderNumber(id: string) {

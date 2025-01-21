@@ -1,4 +1,4 @@
-import { EVENT } from "../../utils/constants";
+import { EVENT, settings } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils"
 import { Component } from "../base/Component"
 import { IEvents } from "../base/events";
@@ -24,10 +24,10 @@ export class Modal extends Component<IModal> {
 		super(container);
 
 		this._closeButton = ensureElement<HTMLButtonElement>(
-			'.modal__close',
+			settings.modal.close,
 			container
 		);
-		this._content = ensureElement<HTMLElement>('.modal__content', container);
+		this._content = ensureElement<HTMLElement>(settings.modal.content, container);
 
 		this._closeButton.addEventListener('click', this.close.bind(this));
 		this.container.addEventListener('click', handleClickOnModal.bind(this));
@@ -39,12 +39,12 @@ export class Modal extends Component<IModal> {
 	}
 
 	open() {
-		this.container.classList.add('modal_active');
+		this.container.classList.add(settings.modal.classes.active);
 		this.events.emit(EVENT.ModalOpen);
 	}
 
 	close() {
-		this.container.classList.remove('modal_active');
+		this.container.classList.remove(settings.modal.classes.active);
 		this.content = null;
 		this.events.emit(EVENT.ModalClose);
 	}

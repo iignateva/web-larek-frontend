@@ -1,12 +1,8 @@
-import { EventEmitter } from './components/base/events';
+import { EventEmitter, IEvents } from './components/base/events';
 import { AppState } from './components/model/AppState';
-import { IOrderRequest, Order } from './components/model/Order';
+import { Order } from './components/model/Order';
 import { ShoppingCart } from './components/model/ShoppingCart';
-import {
-	CatalogItem,
-	CatalogItemPreview,
-	ICatalogItem,
-} from './components/view/CatalogItem';
+import { ICatalogItemView} from './components/view/CatalogItemView';
 import { SuccessOrderView } from './components/view/SuccessOrderView';
 import { ContactsView } from './components/view/ContactsView';
 import { Modal } from './components/view/Modal';
@@ -17,12 +13,13 @@ import { WebLarek } from './components/webLarekApi';
 import './scss/styles.scss';
 import { API_URL, CDN_URL, EVENT } from './utils/constants';
 import { cloneTemplate, ensureElement } from './utils/utils';
-import { IApiErrorResponse, IOrderResponse } from './types';
+import { IApiErrorResponse, IOrder, IOrderResponse, WebLarekApi } from './types';
+import { CatalogItemPreview } from './components/view/CatalogItemPreview';
 
-const api = new WebLarek(API_URL, CDN_URL);
+const api: WebLarekApi = new WebLarek(API_URL, CDN_URL);
 
 // брокер событий
-const events = new EventEmitter();
+const events: IEvents = new EventEmitter();
 
 // Глобальные контейнеры
 const page = new Page(events);
@@ -30,7 +27,6 @@ const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 
 // Все шаблоны
 const successTemplate = ensureElement<HTMLTemplateElement>('#success');
-const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
@@ -69,8 +65,7 @@ const appData = new AppState(
 // обработка событий
 events.on(EVENT.CatalogChanged, () => {
 	page.catalog = appData.products.items.map((product) => {
-		const templateProduct = cloneTemplate(cardCatalogTemplate);
-		const productData: ICatalogItem = {
+		const item: ICatalogItemView = {
 			id: product.id,
 			category: product.category,
 			title: product.title,
@@ -78,27 +73,25 @@ events.on(EVENT.CatalogChanged, () => {
 			price: product.price,
 			image: product.image,
 		};
-		const catalogItem = new CatalogItem(templateProduct, {
-			evt: 'click',
-			handler: (evt) => {
-				previewCatalogItem.inShoppingCart =
-					appData.shoppingCart.items.findIndex((it) => it.id === product.id) >=
-					0;
-				modal.render({
-					content: previewCatalogItem.render({
-						...productData,
-					}),
-				});
-			},
-		});
-		catalogItem.fill(productData);
-
-		return catalogItem;
+		return item;
 	});
 });
 
-events.on(EVENT.ShoppingCartChanged, () => {
+events.on(EVENT.ShoppingCartOpening, () => {
 	renderShoppingCartModal();
+});
+
+events.on(EVENT.CatalogItemPreviewOpening, ({ id }: { id: string }) => {
+	api.getProduct(id).then((product) => {
+		previewCatalogItem.inShoppingCart =
+			appData.shoppingCart.items.findIndex((it) => it.id === product.id) >= 0;
+		modal.render({
+			content: previewCatalogItem.render({
+				...product,
+				text: product.description,
+			}),
+		});
+	});
 });
 
 events.on(EVENT.CatalogItemAddToShoppingCart, ({ id }: { id: string }) => {
@@ -124,7 +117,7 @@ function deleteFromShoppingCart(id: string) {
 function renderShoppingCartModal() {
 	modal.render({
 		content: shoppingCartView.render({
-			items: appData.shoppingCart.items
+			items: appData.shoppingCart.items,
 		}),
 	});
 }
@@ -141,7 +134,9 @@ events.on(EVENT.ShoppingCartCreateOrder, () => {
 	appData.order = new Order(
 		{
 			total: appData.shoppingCart.total,
-			items: appData.shoppingCart.items.filter(it => it.price !== null).map((it) => it.id),
+			items: appData.shoppingCart.items
+				.filter((it) => it.price !== null)
+				.map((it) => it.id),
 		},
 		events
 	);
@@ -151,7 +146,7 @@ events.on(EVENT.ShoppingCartCreateOrder, () => {
 	});
 });
 
-events.on(EVENT.OrderDeliveryDataReady, (data: Partial<IOrderRequest>) => {
+events.on(EVENT.OrderDeliveryDataReady, (data: Partial<IOrder>) => {
 	Object.assign(appData.order, data ?? {});
 
 	modal.render({
@@ -159,21 +154,24 @@ events.on(EVENT.OrderDeliveryDataReady, (data: Partial<IOrderRequest>) => {
 	});
 });
 
-events.on(EVENT.OrderDataReady, (data: Partial<IOrderRequest>) => {
+events.on(EVENT.OrderDataReady, (data: Partial<IOrder>) => {
 	Object.assign(appData.order, data ?? {});
 
-	api.confirmOrder(appData.order).then((data) => {
-		if (Object.keys('id')) {
-			modal.render({
-				content: successModal.render({
-					totalPrice: appData.order.total,
-					orderNumber: (data as IOrderResponse).id,
-				}),
-			});
-		} else if (Object.keys('error')) {
-			console.log((data as IApiErrorResponse).error);
-		}
-	}).catch( (err) => console.log(err));
+	api
+		.confirmOrder(appData.order)
+		.then((data) => {
+			if (Object.keys('id')) {
+				modal.render({
+					content: successModal.render({
+						totalPrice: appData.order.total,
+						orderNumber: (data as IOrderResponse).id,
+					}),
+				});
+			} else if (Object.keys('error')) {
+				console.log((data as IApiErrorResponse).error);
+			}
+		})
+		.catch((err) => console.log(err));
 });
 
 events.on(EVENT.OrderSuccesfullyDone, () => {

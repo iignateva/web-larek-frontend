@@ -1,27 +1,27 @@
 import { IProduct, IShoppingCart } from '../../types';
-import { EVENT } from '../../utils/constants';
+import { EVENT, settings } from '../../utils/constants';
 import { cloneTemplate, ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
-import { EventEmitter } from '../base/events';
+import { IEvents } from '../base/events';
 
 export class ShoppingCartView extends Component<IShoppingCart<IProduct>> {
 	protected _shoppingCartList: HTMLElement;
 	protected _shoppingCartPrice: HTMLElement;
   protected _orderButton: HTMLElement;
-	protected _events: EventEmitter;
+	protected _events: IEvents;
 	protected _itemTemplate: HTMLTemplateElement;
 
 	constructor(
 		container: HTMLElement,
 		itemTemplate: HTMLTemplateElement,
-		events: EventEmitter
+		events: IEvents
 	) {
 		super(container);
 		this._events = events;
 		this._itemTemplate = itemTemplate;
-		this._shoppingCartList = ensureElement('.basket__list', container);
-		this._shoppingCartPrice = ensureElement('.basket__price', container);
-    this._orderButton = ensureElement('.basket__button', container);
+		this._shoppingCartList = ensureElement(settings.shoppingCart.list, container);
+		this._shoppingCartPrice = ensureElement(settings.shoppingCart.price, container);
+    this._orderButton = ensureElement(settings.shoppingCart.buttonToOrder, container);
 
     this._orderButton.addEventListener('click', () => {
       this._events.emit(EVENT.ShoppingCartCreateOrder)
@@ -35,10 +35,11 @@ export class ShoppingCartView extends Component<IShoppingCart<IProduct>> {
 			totalPrice = items
 				.map((it) => it.price ?? 0)
 				.reduce((totalPrice, itemPrice) => totalPrice + itemPrice);
-		} else {
+		}
+		if (totalPrice === 0) {
       this.setDisabled(this._orderButton, true);
     }
-    this.setText(this._shoppingCartPrice, `${totalPrice} синапсов`);
+    this.setText(this._shoppingCartPrice, `${totalPrice} ${settings.units}`);
     const shoppingCartItems = items.map((item, index) => {
 			const itemContainer = cloneTemplate(this._itemTemplate);
 			return new ShoppingCartItem(itemContainer, this._events).render({
@@ -66,13 +67,16 @@ export class ShoppingCartItem extends Component<IShoppingCartItem> {
 	protected _deleteButton: HTMLElement;
 	protected _itemId: string;
 
-	constructor(container: HTMLElement, events: EventEmitter) {
+	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
 
-		this._itemIndex = ensureElement('.basket__item-index', container);
-		this._itemTitle = ensureElement('.card__title', container);
-		this._itemPrice = ensureElement('.card__price', container);
-		this._deleteButton = ensureElement('.basket__item-delete', container);
+		this._itemIndex = ensureElement(settings.shoppingCart.item.index, container);
+		this._itemTitle = ensureElement(settings.shoppingCart.item.title, container);
+		this._itemPrice = ensureElement(settings.shoppingCart.item.price, container);
+		this._deleteButton = ensureElement(
+			settings.shoppingCart.item.deleteButton,
+			container
+		);
 
 		this._deleteButton.addEventListener('click', (evt) => {
 			events.emit(EVENT.ShoppingCartItemDelete, { id: this._itemId });
@@ -93,9 +97,9 @@ export class ShoppingCartItem extends Component<IShoppingCartItem> {
 
 	set price(price: number | null) {
 		if (price == null) {
-			this.setText(this._itemPrice, 'Бесценно');
+			this.setText(this._itemPrice, settings.priceless);
 		} else {
-			this.setText(this._itemPrice, `${price} синапсов`);
+			this.setText(this._itemPrice, `${price} ${settings.units}`);
 		}
 	}
 }

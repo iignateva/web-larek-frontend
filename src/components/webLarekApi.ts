@@ -1,11 +1,11 @@
 import {
+	IOrder,
 	IProduct,
-	IProducts,
+	IItems,
 	OrderConfirmation,
 	WebLarekApi,
 } from '../types';
 import { Api } from './base/api';
-import { IOrderRequest } from './model/Order';
 
 export class WebLarek implements WebLarekApi {
 	private _api: Api;
@@ -16,8 +16,8 @@ export class WebLarek implements WebLarekApi {
 		this._cdnUrl = cdnUrl;
 	}
 
-	getProducts(): Promise<IProducts<IProduct>> {
-		return this._api.get('/product/').then((products: IProducts<IProduct>) => {
+	getProducts(): Promise<IItems<IProduct>> {
+		return this._api.get('/product/').then((products: IItems<IProduct>) => {
 			const withUpdatedImages = products.items.map((product: IProduct) =>
 				this.enrichImageUrl(product)
 			);
@@ -34,7 +34,7 @@ export class WebLarek implements WebLarekApi {
 			.then((product: IProduct) => this.enrichImageUrl(product));
 	}
 
-	confirmOrder(orderRequest: IOrderRequest): Promise<OrderConfirmation> {
+	confirmOrder(orderRequest: IOrder): Promise<OrderConfirmation> {
 		return this._api.post('/order', orderRequest);
 	}
 

@@ -1,11 +1,11 @@
 import { IProduct, IShoppingCart } from "../../types";
-import { EventEmitter } from "../base/events";
+import { IEvents } from "../base/events";
 
 export class ShoppingCart implements IShoppingCart<IProduct> {
 	private _items: IProduct[] = [];
-  protected _events: EventEmitter;
+  protected _events: IEvents;
 
-  constructor(events: EventEmitter) {
+  constructor(events: IEvents) {
     this._events = events;
   }
 

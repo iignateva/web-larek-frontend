@@ -1,10 +1,10 @@
-import { IContacts } from '../../types';
+import { View } from '../../types';
 import { EVENT, settings } from '../../utils/constants';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 
-export class ContactsView extends Component<IContacts> {
+export class ContactsView extends Component<View> {
 	protected _events: IEvents;
 	protected _email: HTMLInputElement;
 	protected _phone: HTMLInputElement;
@@ -38,6 +38,11 @@ export class ContactsView extends Component<IContacts> {
         phone: this._phone.value
       });
 		});
+	}
+
+	clear() {
+		this._email.value = '';
+		this._phone.value = '';
 	}
 
 	private checkForm() {

@@ -101,8 +101,10 @@ events.on(EVENT.CatalogItemPreviewOpening, ({ id }: { id: string }) => {
 
 events.on(EVENT.CatalogItemAddToShoppingCart, ({ id }: { id: string }) => {
 	const product = appData.products.items.find((it) => it.id === id);
-	appData.shoppingCart.addItem(product);
-	page.shoppingCartItemCounter = appData.shoppingCart.totalCount;
+	if (product) {
+		appData.shoppingCart.addItem(product);
+		page.shoppingCartItemCounter = appData.shoppingCart.totalCount;
+	}
 });
 
 events.on(EVENT.CatalogItemDeleteFromShoppingCart, ({ id }: { id: string }) => {
@@ -147,7 +149,7 @@ events.on(EVENT.ShoppingCartCreateOrder, () => {
 	);
 
 	modal.render({
-		content: orderModalView.render(appData.order),
+		content: orderModalView.render(),
 	});
 });
 
@@ -172,7 +174,7 @@ events.on(EVENT.OrderDataReady, (data: Partial<IOrder>) => {
 						orderNumber: (data as IOrderResponse).id,
 					}),
 				});
-		    events.emit(EVENT.OrderSuccesfullyDone);
+				events.emit(EVENT.OrderSuccesfullyDone);
 			} else if (Object.keys('error')) {
 				console.log((data as IApiErrorResponse).error);
 			}
@@ -180,9 +182,10 @@ events.on(EVENT.OrderDataReady, (data: Partial<IOrder>) => {
 		.catch((err) => console.log(err));
 });
 
-events.on(EVENT.OrderSuccesfullyDone, () => { 
-	appData.order = null;
+events.on(EVENT.OrderSuccesfullyDone, () => {
 	appData.shoppingCart.clear();
+	orderModalView.clear();
+	contactsModalView.clear();
 	page.shoppingCartItemCounter = appData.shoppingCart.totalCount;
 });
 

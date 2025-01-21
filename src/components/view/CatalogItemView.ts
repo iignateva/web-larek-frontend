@@ -1,16 +1,16 @@
-import { ICatalogItemView, ProductCategory } from "../../types";
-import { EVENT, settings } from "../../utils/constants";
-import { ensureElement } from "../../utils/utils";
-import { Component } from "../base/Component";
-import { IEvents } from "../base/events";
+import { ICatalogItemView, ProductCategory } from '../../types';
+import { EVENT, settings } from '../../utils/constants';
+import { ensureElement } from '../../utils/utils';
+import { Component } from '../base/Component';
+import { IEvents } from '../base/events';
 
 const mapCategoryToCssClassName = new Map<ProductCategory, string>([
-        [ProductCategory.SOFT_SKILL, 'soft'],
-        [ProductCategory.OTHER, 'other'],
-        [ProductCategory.ADDITIONAL, 'additional'],
-        [ProductCategory.BUTTON, 'button'],
-        [ProductCategory.HARD_SKILL, 'hard']
-    ]);
+	[ProductCategory.SOFT_SKILL, 'soft'],
+	[ProductCategory.OTHER, 'other'],
+	[ProductCategory.ADDITIONAL, 'additional'],
+	[ProductCategory.BUTTON, 'button'],
+	[ProductCategory.HARD_SKILL, 'hard'],
+]);
 
 export class CatalogItemView extends Component<ICatalogItemView> {
 	protected _events: IEvents;
@@ -32,18 +32,20 @@ export class CatalogItemView extends Component<ICatalogItemView> {
 		this._price = ensureElement(settings.gallery.item.price, container);
 
 		this.container.addEventListener('click', () => {
-			this._events.emit(EVENT.CatalogItemPreviewOpening, {id: this.id});
+			this._events.emit(EVENT.CatalogItemPreviewOpening, { id: this.id });
 		});
 	}
 
 	set category(category: ProductCategory) {
 		this.setText(this._category, category);
 		const cssClassName = this.getCategoryCssClassName(category);
-		this.toggleClass(
-			this._category,
-			`${settings.gallery.item.classes.categoryPrefix}${cssClassName}`,
-			true
-		);
+		if (cssClassName) {
+			this.toggleClass(
+				this._category,
+				`${settings.gallery.item.classes.categoryPrefix}${cssClassName}`,
+				true
+			);
+		}
 	}
 
 	set title(title: string) {
@@ -51,7 +53,7 @@ export class CatalogItemView extends Component<ICatalogItemView> {
 	}
 
 	get title(): string {
-		return this._title.textContent || '';
+		return this._title.textContent ?? '';
 	}
 
 	set image(src: string) {
@@ -66,7 +68,9 @@ export class CatalogItemView extends Component<ICatalogItemView> {
 		}
 	}
 
-	private getCategoryCssClassName(category: ProductCategory): string {
+	private getCategoryCssClassName(
+		category: ProductCategory
+	): string | undefined {
 		return mapCategoryToCssClassName.get(category);
 	}
 }

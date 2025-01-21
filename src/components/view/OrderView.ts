@@ -1,25 +1,31 @@
-import { IOrderView, PaymentType } from '../../types';
+import { PaymentType, View } from '../../types';
 import { EVENT, settings } from '../../utils/constants';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 
-export class OrderView extends Component<IOrderView> {
+export class OrderView extends Component<View> {
 	protected _address: HTMLInputElement;
 	protected _payOnline: HTMLElement;
 	protected _payOnReceiving: HTMLElement;
 	protected _submitButton: HTMLElement;
 	protected _formError: HTMLElement;
 	protected _events: IEvents;
-	private _selectedPaymentType: PaymentType;
+	private _selectedPaymentType: PaymentType | null;
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
 		this._events = events;
 
-		this._address = ensureElement<HTMLInputElement>(settings.order.address, container);
+		this._address = ensureElement<HTMLInputElement>(
+			settings.order.address,
+			container
+		);
 		this._payOnline = ensureElement(settings.order.payment.online, container);
-		this._payOnReceiving = ensureElement(settings.order.payment.onReceiving, container);
+		this._payOnReceiving = ensureElement(
+			settings.order.payment.onReceiving,
+			container
+		);
 		this._submitButton = ensureElement(settings.order.buttonToOrder, container);
 		this._formError = ensureElement(settings.order.formErrors, container);
 
@@ -51,7 +57,12 @@ export class OrderView extends Component<IOrderView> {
 		});
 	}
 
-	private setPaymentType(paymentType: PaymentType) {
+	clear() {
+		this._address.value = '';
+		this.setPaymentType(null); 
+	}
+
+	private setPaymentType(paymentType: PaymentType | null) {
 		this._selectedPaymentType = paymentType;
 		this.toggleClass(
 			this._payOnline,
@@ -64,5 +75,4 @@ export class OrderView extends Component<IOrderView> {
 			paymentType === PaymentType.ON_RECEIVING
 		);
 	}
-
 }

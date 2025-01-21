@@ -85,11 +85,6 @@ export interface ICatalogItemPreview {
 	inShoppingCart: boolean;
 }
 
-export interface IContacts {
-	email: string;
-	phone: string;
-}
-
 export interface IHeader {
 	shoppingCartItemCounter: number;
 }
@@ -98,9 +93,8 @@ export interface IModal {
 	content: HTMLElement;
 }
 
-export interface IOrderView {
-	total: number;
-	items: string[];
+export interface View {
+	clear(): void;
 }
 
 export interface IPage {

@@ -1,12 +1,8 @@
-import { ProductCategory } from "../../types";
+import { ICatalogItemPreview, ProductCategory } from "../../types";
 import { EVENT, settings } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { IEvents } from "../base/events";
 import { CatalogItemView } from "./CatalogItemView";
-
-export interface ICatalogItemPreview {
-	inShoppingCart: boolean;
-}
 
 export class CatalogItemPreview
 	extends CatalogItemView

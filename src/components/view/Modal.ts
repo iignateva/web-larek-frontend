@@ -1,12 +1,8 @@
+import { IModal } from "../../types";
 import { EVENT, settings } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils"
 import { Component } from "../base/Component"
 import { IEvents } from "../base/events";
-
-export interface IModal {
-  content: HTMLElement
-}
-
 
 function handleClickOnModal(evt: PointerEvent) {
 	if ((evt.target as Element).classList.contains('modal')) {

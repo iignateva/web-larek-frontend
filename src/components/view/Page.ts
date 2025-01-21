@@ -1,13 +1,9 @@
 import { ensureElement } from '../../utils/utils';
 import { IEvents } from '../base/events';
-import { Catalog, ICatalogView } from './Catalog';
-import { ICatalogItemView } from './CatalogItemView';
-import { Header, IHeader } from './Header';
+import { Catalog } from './Catalog';
+import { Header } from './Header';
 import { settings } from '../../utils/constants';
-
-export interface IPage {
-	locked: boolean;
-}
+import { ICatalogItemView, ICatalogView, IHeader, IPage } from '../../types';
 
 export class Page implements IPage, IHeader, ICatalogView {
 	protected _wrapper: HTMLElement;

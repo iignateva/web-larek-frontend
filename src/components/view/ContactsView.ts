@@ -1,12 +1,8 @@
+import { IContacts } from '../../types';
 import { EVENT, settings } from '../../utils/constants';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
-
-export interface IContacts {
-	email: string;
-	phone: string;
-}
 
 export class ContactsView extends Component<IContacts> {
 	protected _events: IEvents;

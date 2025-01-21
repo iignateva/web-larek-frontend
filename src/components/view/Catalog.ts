@@ -1,11 +1,8 @@
+import { ICatalogItemView, ICatalogView } from '../../types';
 import { cloneTemplate } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
-import { CatalogItemView, ICatalogItemView } from './CatalogItemView';
-
-export interface ICatalogView {
-	catalog: ICatalogItemView[];
-}
+import { CatalogItemView } from './CatalogItemView';
 
 export class Catalog extends Component<ICatalogView> {
 protected _itemTemplate: HTMLTemplateElement;

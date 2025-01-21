@@ -2,7 +2,6 @@ import { EventEmitter, IEvents } from './components/base/events';
 import { AppState } from './components/model/AppState';
 import { Order } from './components/model/Order';
 import { ShoppingCart } from './components/model/ShoppingCart';
-import { ICatalogItemView} from './components/view/CatalogItemView';
 import { SuccessOrderView } from './components/view/SuccessOrderView';
 import { ContactsView } from './components/view/ContactsView';
 import { Modal } from './components/view/Modal';
@@ -13,7 +12,13 @@ import { WebLarek } from './components/webLarekApi';
 import './scss/styles.scss';
 import { API_URL, CDN_URL, EVENT } from './utils/constants';
 import { cloneTemplate, ensureElement } from './utils/utils';
-import { IApiErrorResponse, IOrder, IOrderResponse, WebLarekApi } from './types';
+import {
+	IApiErrorResponse,
+	ICatalogItemView,
+	IOrder,
+	IOrderResponse,
+	WebLarekApi,
+} from './types';
 import { CatalogItemPreview } from './components/view/CatalogItemPreview';
 
 const api: WebLarekApi = new WebLarek(API_URL, CDN_URL);
@@ -167,6 +172,7 @@ events.on(EVENT.OrderDataReady, (data: Partial<IOrder>) => {
 						orderNumber: (data as IOrderResponse).id,
 					}),
 				});
+		    events.emit(EVENT.OrderSuccesfullyDone);
 			} else if (Object.keys('error')) {
 				console.log((data as IApiErrorResponse).error);
 			}
@@ -174,10 +180,10 @@ events.on(EVENT.OrderDataReady, (data: Partial<IOrder>) => {
 		.catch((err) => console.log(err));
 });
 
-events.on(EVENT.OrderSuccesfullyDone, () => {
-	appData.products.items = [];
-	appData.products.total = 0;
+events.on(EVENT.OrderSuccesfullyDone, () => { 
 	appData.order = null;
+	appData.shoppingCart.clear();
+	page.shoppingCartItemCounter = appData.shoppingCart.totalCount;
 });
 
 events.on(EVENT.ModalOpen, () => {
@@ -197,8 +203,6 @@ api
 	.getProducts()
 	.then((products) => {
 		appData.setCatalog(products);
-		appData.shoppingCart.addItem(appData.products.items[0]);
-		appData.shoppingCart.addItem(appData.products.items[2]);
 	})
 	.catch((err) => {
 		console.error(err);

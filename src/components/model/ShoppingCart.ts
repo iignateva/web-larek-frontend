@@ -28,6 +28,10 @@ export class ShoppingCart implements IShoppingCart<IProduct> {
 		}
 	}
 
+	clear() {
+		this._items = [];
+	}
+
 	get items(): IProduct[] {
 		return this._items;
 	}

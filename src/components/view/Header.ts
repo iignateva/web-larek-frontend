@@ -1,12 +1,8 @@
+import { IHeader } from "../../types";
 import { EVENT, settings } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
-
-
-export interface IHeader {
-	shoppingCartItemCounter: number;
-}
 
 export class Header extends Component<IHeader> {
 	protected _shoppingCartButton: HTMLElement;

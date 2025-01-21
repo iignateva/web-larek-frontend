@@ -1,17 +1,8 @@
-import { ProductCategory } from "../../types";
+import { ICatalogItemView, ProductCategory } from "../../types";
 import { EVENT, settings } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
-
-export interface ICatalogItemView {
-  id: string;
-	category: ProductCategory;
-	title: string;
-	image: string;
-	text: string;
-	price: number | null;
-}
 
 const mapCategoryToCssClassName = new Map<ProductCategory, string>([
         [ProductCategory.SOFT_SKILL, 'soft'],
@@ -73,11 +64,6 @@ export class CatalogItemView extends Component<ICatalogItemView> {
 		} else {
 			this.setText(this._price, `${price} ${settings.units}`);
 		}
-	}
-
-	fill(data?: Partial<ICatalogItemView>): CatalogItemView {
-		Object.assign(this as object, data ?? {});
-		return this;
 	}
 
 	private getCategoryCssClassName(category: ProductCategory): string {

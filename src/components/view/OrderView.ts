@@ -1,13 +1,8 @@
-import { PaymentType } from '../../types';
+import { IOrderView, PaymentType } from '../../types';
 import { EVENT, settings } from '../../utils/constants';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
-
-export interface IOrderView {
-	total: number;
-	items: string[];
-}
 
 export class OrderView extends Component<IOrderView> {
 	protected _address: HTMLInputElement;

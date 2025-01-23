@@ -92,15 +92,13 @@ export enum EVENT {
 	ModalOpen = 'modal:open',
 	ModalClose = 'modal:close',
 	ShoppingCartOpening = 'shoppingCart:opening',
+	ShoppingCartCountChanged = 'shoppingCart:count:changed',
 	CatalogItemPreviewOpening = 'catalog:item:preview:opening',
 	CatalogItemToShoppingCartClicked = 'catalog:item:toShoppingCart:click',
 	ShoppingCartItemDelete = 'shoppingCart:item:delete',
 	ShoppingCartCreateOrder = 'shoppingCart:order:create',
-
 	OrderDeliveryDataReady = 'order:deliveryData:ready',
 	OrderDataReady = 'order:data:ready',
-
 	OrderSuccesfullyDone = 'order:success:done',
-
 	NeedCloseModalView = 'need:close:modalView',
 }

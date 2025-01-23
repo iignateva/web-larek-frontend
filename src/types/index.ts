@@ -71,6 +71,7 @@ export interface IShoppingCartView {
 export interface IShoppingCart<T> {
 	addItem(item: T): void;
 	deleteItem(id: string): void;
+	contains(id: string): boolean;
 	clear(): void;
 	items: T[];
 	itemIds: string[];

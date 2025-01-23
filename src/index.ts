@@ -6,7 +6,10 @@ import { ContactsView } from './components/view/ContactsView';
 import { Modal } from './components/view/Modal';
 import { OrderView } from './components/view/OrderView';
 import { Page } from './components/view/Page';
-import { ShoppingCartItem, ShoppingCartView } from './components/view/ShoppingCartView';
+import {
+	ShoppingCartItem,
+	ShoppingCartView,
+} from './components/view/ShoppingCartView';
 import { WebLarek } from './components/webLarekApi';
 import './scss/styles.scss';
 import { API_URL, CDN_URL, EVENT, settings } from './utils/constants';
@@ -74,10 +77,13 @@ const successModal = new SuccessOrderView(
 );
 
 // модель данных
-const appData = new AppState({
-	shoppingCart: new ShoppingCart(events),
-	order: new Order(events)
-}, events);
+const appData = new AppState(
+	{
+		shoppingCart: new ShoppingCart(events),
+		order: new Order(events),
+	},
+	events
+);
 
 // обработка событий
 events.on(EVENT.CatalogChanged, () => {
@@ -92,33 +98,32 @@ events.on(EVENT.ShoppingCartOpening, () => {
 	renderShoppingCartModal();
 });
 
-events.on(
-	EVENT.CatalogItemPreviewOpening, (item: ICatalogItemView) => {
-		const inShoppingCart =
-			appData.shoppingCart.items.findIndex((it) => it.id === item.id) >= 0;
-		renderCatalogItemPreviewModal(item, inShoppingCart);
-	}
-);
+events.on(EVENT.CatalogItemPreviewOpening, (item: ICatalogItemView) => {
+	const inShoppingCart = appData.shoppingCart.contains(item.id);
+	renderCatalogItemPreviewModal(item, inShoppingCart);
+});
 
 events.on(
-	EVENT.CatalogItemToShoppingCartClicked, (product: ICatalogItemView ) => {
-		const inShoppingCart =
-			appData.shoppingCart.items.findIndex((it) => it.id === product.id) >= 0;
+	EVENT.CatalogItemToShoppingCartClicked,
+	(item: ICatalogItemView) => {
+		const inShoppingCart = appData.shoppingCart.contains(item.id);
 		if (inShoppingCart) {
-			appData.shoppingCart.deleteItem(product.id);
+			appData.shoppingCart.deleteItem(item.id);
 		} else {
-			appData.shoppingCart.addItem(product);
+			appData.shoppingCart.addItem(item);
 		}
-		header.shoppingCartItemCounter = appData.shoppingCart.totalCount;
-		renderCatalogItemPreviewModal(product, !inShoppingCart);
+		renderCatalogItemPreviewModal(item, !inShoppingCart);
 	}
 );
 
-function renderCatalogItemPreviewModal(item: ICatalogItemView, inShoppingCart: boolean) {
+function renderCatalogItemPreviewModal(
+	item: ICatalogItemView,
+	inShoppingCart: boolean
+) {
 	previewCatalogItem.inShoppingCart = inShoppingCart;
-  modal.render({
-		content: previewCatalogItem.render({...item})
-	})
+	modal.render({
+		content: previewCatalogItem.render({ ...item }),
+	});
 }
 
 events.on(EVENT.ShoppingCartItemDelete, ({ id }: { id: string }) => {
@@ -128,7 +133,6 @@ events.on(EVENT.ShoppingCartItemDelete, ({ id }: { id: string }) => {
 
 function deleteFromShoppingCart(id: string) {
 	appData.shoppingCart.deleteItem(id);
-	header.shoppingCartItemCounter = appData.shoppingCart.totalCount;
 }
 
 function renderShoppingCartModal() {
@@ -136,23 +140,15 @@ function renderShoppingCartModal() {
 		const itemContainer = cloneTemplate(cardBasketTemplate);
 		return new ShoppingCartItem(itemContainer, events).render({
 			index: index + 1,
-			title: item.title,
-			price: item.price,
-			itemId: item.id,
+			...item
 		});
 	});
-
-	let totalPrice = 0;
-	if (appData.shoppingCart.items.length > 0) { 
-		totalPrice = appData.shoppingCart.items.map((it) => it.price ?? 0)
-			.reduce((totalPrice, itemPrice) => totalPrice + itemPrice);
-	}
 
 	modal.render({
 		content: shoppingCartView.render({
 			items: shoppingCartItems,
-			total: totalPrice,
-		})
+			total: appData.shoppingCart.total,
+		}),
 	});
 }
 
@@ -199,6 +195,9 @@ events.on(EVENT.OrderSuccesfullyDone, () => {
 	appData.shoppingCart.clear();
 	orderModalView.clear();
 	contactsModalView.clear();
+});
+
+events.on(EVENT.ShoppingCartCountChanged, () => {
 	header.shoppingCartItemCounter = appData.shoppingCart.totalCount;
 });
 

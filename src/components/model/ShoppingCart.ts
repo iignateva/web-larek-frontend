@@ -1,4 +1,5 @@
 import { IProduct, IShoppingCart } from '../../types';
+import { EVENT } from '../../utils/constants';
 import { Model } from '../base/Model';
 import { IEvents } from '../base/events';
 
@@ -13,10 +14,7 @@ export class ShoppingCart extends Model<IShoppingCart<IProduct>> {
 		if (!this.getItemsId().includes(item.id)) {
 			this._items.push(item);
 		}
-	}
-
-	private getItemsId(): string[] {
-		return this._items.map((item) => item.id);
+		this.events.emit(EVENT.ShoppingCartCountChanged);
 	}
 
 	deleteItem(itemId: string) {
@@ -25,11 +23,21 @@ export class ShoppingCart extends Model<IShoppingCart<IProduct>> {
 		} else {
 			const itemIndex = this.getItemsId().indexOf(itemId);
 			this._items.splice(itemIndex, 1);
+			this.events.emit(EVENT.ShoppingCartCountChanged);
 		}
+	}
+
+	private getItemsId(): string[] {
+		return this._items.map((item) => item.id);
+	}
+
+	contains(itemId: string): boolean {
+		return this._items.findIndex((it) => it.id === itemId) >= 0;
 	}
 
 	clear() {
 		this._items = [];
+		this.events.emit(EVENT.ShoppingCartCountChanged);
 	}
 
 	get items(): IProduct[] {

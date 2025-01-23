@@ -55,6 +55,7 @@ export interface WebLarekApi {
 }
 
 export interface IShoppingCartItem {
+	id: string;
 	index: number;
 	title: string;
 	price: ItemPrice;

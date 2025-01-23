@@ -77,7 +77,7 @@ export class ShoppingCartItem extends Component<IShoppingCartItem> {
 		});
 	}
 
-	set itemId(id: string) {
+	set id(id: string) {
 		this._itemId = id;
 	}
 

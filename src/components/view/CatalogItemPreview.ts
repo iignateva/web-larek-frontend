@@ -1,42 +1,35 @@
-import { ICatalogItemPreview, ProductCategory } from "../../types";
-import { EVENT, settings } from "../../utils/constants";
-import { ensureElement } from "../../utils/utils";
-import { IEvents } from "../base/events";
-import { CatalogItemView } from "./CatalogItemView";
+import { ProductCategory } from '../../types';
+import { EVENT, settings } from '../../utils/constants';
+import { ensureElement } from '../../utils/utils';
+import { IEvents } from '../base/events';
+import { CatalogItem } from './CatalogItem';
 
-export class CatalogItemPreview
-	extends CatalogItemView
-	implements ICatalogItemPreview
-{
-	protected _text: HTMLElement;
+export class CatalogItemPreview extends CatalogItem {
+	protected _description: HTMLElement;
 	protected _toShoppingCartButton: HTMLElement;
-	protected _isInShoppingCart: boolean;
-	protected _events: IEvents;
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container, events);
-		this._events = events;
-		this._text = ensureElement(settings.gallery.item.text, container);
+		this._description = ensureElement(settings.gallery.item.text, container);
 		this._toShoppingCartButton = ensureElement(
 			settings.gallery.item.buttonToShoppingCart,
 			container
 		);
 
 		this._toShoppingCartButton.addEventListener('click', () => {
-			if (this._isInShoppingCart) {
-				this._events.emit(EVENT.CatalogItemDeleteFromShoppingCart, {
-					id: this.id,
-				});
-				this._events.emit(EVENT.CatalogItemDeleted);
-			} else {
-				this._events.emit(EVENT.CatalogItemAddToShoppingCart, { id: this.id });
-				this._events.emit(EVENT.CatalogItemAdded);
-			}
+			this._events.emit(EVENT.CatalogItemToShoppingCartClicked, {
+				id: this.id,
+				category: this._category.textContent,
+				title: this._title.textContent,
+				image: this._image.src,
+				description: this._description.textContent,
+				price: this._itemPrice,
+			});
 		});
 	}
 
-	set text(description: string) {
-		super.setText(this._text, description);
+	set description(description: string) {
+		this.setText(this._description, description);
 	}
 
 	set category(category: ProductCategory) {
@@ -52,9 +45,7 @@ export class CatalogItemPreview
 	}
 
 	set inShoppingCart(isInShoppingCart: boolean) {
-		this._isInShoppingCart = isInShoppingCart;
-
-		if (this._isInShoppingCart) {
+		if (isInShoppingCart) {
 			this.setText(this._toShoppingCartButton, settings.deleteFromShoppingCart);
 		} else {
 			this.setText(this._toShoppingCartButton, settings.addToShoppingCart);

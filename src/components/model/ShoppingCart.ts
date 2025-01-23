@@ -1,13 +1,13 @@
-import { IProduct, IShoppingCart } from "../../types";
-import { IEvents } from "../base/events";
+import { IProduct, IShoppingCart } from '../../types';
+import { Model } from '../base/Model';
+import { IEvents } from '../base/events';
 
-export class ShoppingCart implements IShoppingCart<IProduct> {
+export class ShoppingCart extends Model<IShoppingCart<IProduct>> {
 	private _items: IProduct[] = [];
-  protected _events: IEvents;
 
-  constructor(events: IEvents) {
-    this._events = events;
-  }
+	constructor(events: IEvents) {
+		super({}, events);
+	}
 
 	addItem(item: IProduct) {
 		if (!this.getItemsId().includes(item.id)) {
@@ -33,7 +33,11 @@ export class ShoppingCart implements IShoppingCart<IProduct> {
 	}
 
 	get items(): IProduct[] {
-		return this._items;
+		return this._items ?? [];
+	}
+
+	get itemIds(): string[] {
+		return this._items.filter((it) => it.price !== null).map((it) => it.id);
 	}
 
 	get totalCount(): number {

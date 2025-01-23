@@ -4,7 +4,7 @@ import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
 
-export class Header extends Component<IHeader> {
+export class HeaderView extends Component<IHeader> {
 	protected _shoppingCartButton: HTMLElement;
 	protected _shoppingCartItemCounter: HTMLElement;
   

@@ -11,13 +11,15 @@ export enum ProductCategory {
   HARD_SKILL = 'хард-скил'
 }
 
+export type ItemPrice = number | null;
+
 export interface IProduct {
-  id: string;
-  description: string;
-  image: string;
-  title: string;
-  category: ProductCategory;
-  price: number | null;
+	id: string;
+	description: string;
+	image: string;
+	title: string;
+	category: ProductCategory;
+	price: ItemPrice;
 }
 
 export interface IItems<T> {
@@ -26,10 +28,10 @@ export interface IItems<T> {
 }
 
 export interface IOrder {
-	payment: PaymentType;
-	email: string;
-	phone: string;
-	address: string;
+	payment?: PaymentType;
+	email?: string;
+	phone?: string;
+	address?: string;
 	total: number;
 	items: string[];
 }
@@ -52,20 +54,33 @@ export interface WebLarekApi {
   confirmOrder(order: IOrder): Promise<OrderConfirmation>
 }
 
+export interface IShoppingCartItem {
+	index: number;
+	title: string;
+	price: ItemPrice;
+	itemId: string;
+}
+
+export interface IShoppingCartView {
+	addItem(item: HTMLElement): void;
+	deleteItem(id: string): void;
+	items: HTMLElement[];
+	total: number;
+}
+
 export interface IShoppingCart<T> {
 	addItem(item: T): void;
 	deleteItem(id: string): void;
 	clear(): void;
 	items: T[];
+	itemIds: string[];
 	total: number;
 }
 
 export interface IAppState<T> {
 	products: IItems<T>;
 	shoppingCart: IShoppingCart<T>;
-	preview: string | null;
 	order: IOrder | null;
-	loading: boolean;
 }
 
 export interface ICatalogItemView {
@@ -73,16 +88,8 @@ export interface ICatalogItemView {
 	category: ProductCategory;
 	title: string;
 	image: string;
-	text: string;
-	price: number | null;
-}
-
-export interface ICatalogView {
-	catalog: ICatalogItemView[];
-}
-
-export interface ICatalogItemPreview {
-	inShoppingCart: boolean;
+	description: string;
+	price: ItemPrice;
 }
 
 export interface IHeader {
@@ -99,6 +106,7 @@ export interface View {
 
 export interface IPage {
 	locked: boolean;
+	catalog: HTMLElement[];
 }
 
 export interface ISuccessOrder {

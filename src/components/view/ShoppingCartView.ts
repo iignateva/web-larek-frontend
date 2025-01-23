@@ -1,63 +1,48 @@
-import { IProduct, IShoppingCart } from '../../types';
+import { IShoppingCartItem, IShoppingCartView, ItemPrice } from '../../types';
 import { EVENT, settings } from '../../utils/constants';
-import { cloneTemplate, ensureElement } from '../../utils/utils';
+import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 
-export class ShoppingCartView extends Component<IShoppingCart<IProduct>> {
+export class ShoppingCartView extends Component<IShoppingCartView> {
 	protected _shoppingCartList: HTMLElement;
 	protected _shoppingCartPrice: HTMLElement;
-  protected _orderButton: HTMLElement;
+	protected _orderButton: HTMLElement;
 	protected _events: IEvents;
-	protected _itemTemplate: HTMLTemplateElement;
 
-	constructor(
-		container: HTMLElement,
-		itemTemplate: HTMLTemplateElement,
-		events: IEvents
-	) {
+	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
 		this._events = events;
-		this._itemTemplate = itemTemplate;
-		this._shoppingCartList = ensureElement(settings.shoppingCart.list, container);
-		this._shoppingCartPrice = ensureElement(settings.shoppingCart.price, container);
-    this._orderButton = ensureElement(settings.shoppingCart.buttonToOrder, container);
+		this._shoppingCartList = ensureElement(
+			settings.shoppingCart.list,
+			container
+		);
+		this._shoppingCartPrice = ensureElement(
+			settings.shoppingCart.price,
+			container
+		);
+		this._orderButton = ensureElement(
+			settings.shoppingCart.buttonToOrder,
+			container
+		);
 
-    this._orderButton.addEventListener('click', () => {
-      this._events.emit(EVENT.ShoppingCartCreateOrder)
-    })
-	}
-
-	set items(items: IProduct[]) {
-    let totalPrice = 0;
-		if (items.length !== 0) {
-      this.setDisabled(this._orderButton, false);
-			totalPrice = items
-				.map((it) => it.price ?? 0)
-				.reduce((totalPrice, itemPrice) => totalPrice + itemPrice);
-		}
-		if (totalPrice === 0) {
-      this.setDisabled(this._orderButton, true);
-    }
-    this.setText(this._shoppingCartPrice, `${totalPrice} ${settings.units}`);
-    const shoppingCartItems = items.map((item, index) => {
-			const itemContainer = cloneTemplate(this._itemTemplate);
-			return new ShoppingCartItem(itemContainer, this._events).render({
-				index: index + 1,
-				title: item.title,
-				price: item.price,
-				itemId: item.id,
-			});
+		this._orderButton.addEventListener('click', () => {
+			this._events.emit(EVENT.ShoppingCartCreateOrder);
 		});
-		this._shoppingCartList.replaceChildren(...shoppingCartItems);
 	}
-}
 
-export interface IShoppingCartItem {
-	index: number;
-	title: string;
-	price: number;
-	itemId: string;
+	set total(totalPrice: ItemPrice) {
+		this.setText(this._shoppingCartPrice, `${totalPrice} ${settings.units}`);
+		if (totalPrice === 0) {
+			this.setDisabled(this._orderButton, true);
+		} else {
+			this.setDisabled(this._orderButton, false);
+		}
+	}
+
+	set items(items: HTMLElement[]) {
+		this._shoppingCartList.replaceChildren(...items);
+	}
 }
 
 export class ShoppingCartItem extends Component<IShoppingCartItem> {
@@ -70,9 +55,18 @@ export class ShoppingCartItem extends Component<IShoppingCartItem> {
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
 
-		this._itemIndex = ensureElement(settings.shoppingCart.item.index, container);
-		this._itemTitle = ensureElement(settings.shoppingCart.item.title, container);
-		this._itemPrice = ensureElement(settings.shoppingCart.item.price, container);
+		this._itemIndex = ensureElement(
+			settings.shoppingCart.item.index,
+			container
+		);
+		this._itemTitle = ensureElement(
+			settings.shoppingCart.item.title,
+			container
+		);
+		this._itemPrice = ensureElement(
+			settings.shoppingCart.item.price,
+			container
+		);
 		this._deleteButton = ensureElement(
 			settings.shoppingCart.item.deleteButton,
 			container

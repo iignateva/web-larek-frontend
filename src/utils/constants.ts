@@ -30,9 +30,16 @@ export const settings = {
 			classes: {
 				categoryPrefix: 'card__category_',
 			},
+			preview: {
+				template: '#card-preview',
+			},
 		},
 	},
 	order: {
+		contacts: {
+			template: '#contacts',
+		},
+		template: '#order',
 		email: '#email',
 		phone: '#phone',
 		formErrors: '.form__errors',
@@ -47,12 +54,14 @@ export const settings = {
 			buttonActive: 'button_alt-active',
 		},
 		success: {
+			template: '#success',
 			title: '.order-success__title',
 			desc: '.order-success__description',
-			closeButton: '.order-success__close'
+			closeButton: '.order-success__close',
 		},
 	},
 	modal: {
+		template: '#modal-container',
 		close: '.modal__close',
 		content: '.modal__content',
 		classes: {
@@ -60,10 +69,12 @@ export const settings = {
 		},
 	},
 	shoppingCart: {
+		template: '#basket',
 		list: '.basket__list',
 		price: '.basket__price',
 		buttonToOrder: '.basket__button',
 		item: {
+			template: '#card-basket',
 			index: '.basket__item-index',
 			title: '.card__title',
 			price: '.card__price',
@@ -82,13 +93,9 @@ export enum EVENT {
 	ModalClose = 'modal:close',
 	ShoppingCartOpening = 'shoppingCart:opening',
 	CatalogItemPreviewOpening = 'catalog:item:preview:opening',
-	CatalogItemAddToShoppingCart = 'catalog:item:addToShoppingCart',
-	CatalogItemDeleteFromShoppingCart = 'catalog:item:deleteFromShoppingCart',
+	CatalogItemToShoppingCartClicked = 'catalog:item:toShoppingCart:click',
 	ShoppingCartItemDelete = 'shoppingCart:item:delete',
 	ShoppingCartCreateOrder = 'shoppingCart:order:create',
-
-	CatalogItemAdded = 'catalog:item:added',
-	CatalogItemDeleted = 'catalog:item:deleted',
 
 	OrderDeliveryDataReady = 'order:deliveryData:ready',
 	OrderDataReady = 'order:data:ready',

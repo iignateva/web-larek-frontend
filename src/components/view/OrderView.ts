@@ -1,10 +1,10 @@
-import { PaymentType, View } from '../../types';
+import { PaymentType, IDeliveryDataView } from '../../types';
 import { EVENT, settings } from '../../utils/constants';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 
-export class OrderView extends Component<View> {
+export class OrderView extends Component<IDeliveryDataView> {
 	protected _address: HTMLInputElement;
 	protected _payOnline: HTMLElement;
 	protected _payOnReceiving: HTMLElement;
@@ -16,7 +16,6 @@ export class OrderView extends Component<View> {
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
 		this._events = events;
-		this._selectedPaymentType = null;
 
 		this._address = ensureElement<HTMLInputElement>(
 			settings.order.address,
@@ -30,28 +29,26 @@ export class OrderView extends Component<View> {
 		this._submitButton = ensureElement(settings.order.buttonToOrder, container);
 		this._formError = ensureElement(settings.order.formErrors, container);
 
-		this.setDisabled(
+		/*	this.setDisabled(
 			this._submitButton,
 			!(this._selectedPaymentType !== null && this._address.value !== null)
-		);
+		); */
 
 		this._payOnline.addEventListener('click', () => {
-			this.setPaymentType(PaymentType.ONLINE);
-			this.checkButtonEnable();
+			this.paymentType = PaymentType.ONLINE;
 		});
 
 		this._payOnReceiving.addEventListener('click', () => {
-			this.setPaymentType(PaymentType.ON_RECEIVING);
-			this.checkButtonEnable();
+			this.paymentType = PaymentType.ON_RECEIVING;
 		});
 
 		this._address.addEventListener('input', (evt) => {
 			evt.preventDefault();
-			this.checkButtonEnable();
+			this.emitDataChangedEvent();
 		});
 
 		this.container.addEventListener('submit', () => {
-			this.isValid(this._formError, this._address);
+			//this.isValid(this._formError, this._address);
 			this._events.emit(EVENT.OrderDeliveryDataReady, {
 				address: this._address.value,
 				payment: this._selectedPaymentType,
@@ -59,23 +56,34 @@ export class OrderView extends Component<View> {
 		});
 	}
 
-	private checkButtonEnable() {
-		const isValid = this.isValid(this._formError, this._address);
+	set isValid(isValid: boolean) {
+		this.setDisabled(this._submitButton, !isValid);
+	}
 
-		if (isValid && this._selectedPaymentType !== null) {
-			this.setDisabled(this._submitButton, false);
-		} else {
+	set errorMessages(errorMsg: string[]) {
+		if (errorMsg && errorMsg.length > 0) {
+			this.setVisible(this._formError);
+			this.setText(this._formError, errorMsg[0]);
 			this.setDisabled(this._submitButton, true);
+		} else {
+			this.setHidden(this._formError);
+			this.setText(this._formError, '');
+			this.setDisabled(this._submitButton, false);
 		}
 	}
 
-
 	clear() {
 		this._address.value = '';
-		this.setPaymentType(null);
+		//this.aymentType(null);
 	}
 
-	private setPaymentType(paymentType: PaymentType | null) {
+	set address(address: string) {
+		if (address) {
+			this._address.value = address;
+		}
+	}
+
+	set paymentType(paymentType: PaymentType) {
 		this._selectedPaymentType = paymentType;
 		this.toggleClass(
 			this._payOnline,
@@ -87,5 +95,13 @@ export class OrderView extends Component<View> {
 			settings.order.classes.buttonActive,
 			paymentType === PaymentType.ON_RECEIVING
 		);
+		this.emitDataChangedEvent();
+	}
+
+	emitDataChangedEvent() {
+		this._events.emit(EVENT.OrderDeliveryDataChanged, {
+			paymentType: this._selectedPaymentType,
+			address: this._address.value,
+		});
 	}
 }

@@ -47,7 +47,7 @@ export abstract class Component<T> {
 			}
 		}
 	}
-
+/*
 	protected isValid(
 		errorElement: HTMLElement,
 		...elements: HTMLElement[]
@@ -75,7 +75,7 @@ export abstract class Component<T> {
 		}
 		return !invalid;
 	}
-
+*/
 	// Вернуть корневой DOM-элемент
 	render(data?: Partial<T>): HTMLElement {
 		Object.assign(this as object, data ?? {});

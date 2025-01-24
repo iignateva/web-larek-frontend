@@ -85,6 +85,8 @@ export const settings = {
 	deleteFromShoppingCart: 'Удалить из корзины',
 	priceless: 'Бесценно',
 	units: 'синапсов',
+	orderAddressDataErrorMsg: 'Введите адрес доставки',
+	orderPaymentDataErrorMsg: 'Выберите тип платежа',
 };
 
 export enum EVENT {
@@ -101,4 +103,7 @@ export enum EVENT {
 	OrderDataReady = 'order:data:ready',
 	OrderSuccesfullyDone = 'order:success:done',
 	NeedCloseModalView = 'need:close:modalView',
+
+	OrderDeliveryDataChanged = 'order:delivery:data:changed',
+	OrderDeliveryDataChecked = 'order:delivery:data:checked',
 }

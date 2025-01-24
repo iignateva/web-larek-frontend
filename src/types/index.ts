@@ -3,15 +3,25 @@ export enum PaymentType {
 	ON_RECEIVING = 'при получении',
 }
 
-export enum ProductCategory { 
-  SOFT_SKILL = 'софт-скил', 
-  OTHER = 'другое',
-  ADDITIONAL = 'дополнительное', 
-  BUTTON = 'кнопка',
-  HARD_SKILL = 'хард-скил'
+export enum ProductCategory {
+	SOFT_SKILL = 'софт-скил',
+	OTHER = 'другое',
+	ADDITIONAL = 'дополнительное',
+	BUTTON = 'кнопка',
+	HARD_SKILL = 'хард-скил',
 }
 
 export type ItemPrice = number | null;
+
+export type CheckingFieldAndErrorMsg = {
+	field: string;
+	errorMsg: string;
+};
+
+export type OrderDataOnCheck = {
+	event: string;
+	fields: CheckingFieldAndErrorMsg[];
+};
 
 export interface IProduct {
 	id: string;
@@ -23,8 +33,8 @@ export interface IProduct {
 }
 
 export interface IItems<T> {
-  total: number;
-  items: T[];
+	total: number;
+	items: T[];
 }
 
 export interface IOrder {
@@ -42,16 +52,16 @@ export interface IOrderResponse {
 }
 
 export interface IApiErrorResponse {
-  error: string;
+	error: string;
 }
 
 export type OrderConfirmation = IOrderResponse | IApiErrorResponse;
 
 export interface WebLarekApi {
-  getProducts(): Promise<IItems<IProduct>>
-  getProduct(id: string): Promise<IProduct>
+	getProducts(): Promise<IItems<IProduct>>;
+	getProduct(id: string): Promise<IProduct>;
 
-  confirmOrder(order: IOrder): Promise<OrderConfirmation>
+	confirmOrder(order: IOrder): Promise<OrderConfirmation>;
 }
 
 export interface IShoppingCartItem {
@@ -79,12 +89,6 @@ export interface IShoppingCart<T> {
 	total: number;
 }
 
-export interface IAppState<T> {
-	products: IItems<T>;
-	shoppingCart: IShoppingCart<T>;
-	order: IOrder | null;
-}
-
 export interface ICatalogItemView {
 	id: string;
 	category: ProductCategory;
@@ -102,8 +106,22 @@ export interface IModal {
 	content: HTMLElement;
 }
 
-export interface View {
+export interface IOrderView {
 	clear(): void;
+	errorMessage: string[];
+	isValid: boolean;
+}
+
+export interface IDeliveryDataView {
+	address: string;
+	paymentType: PaymentType;
+	errorMessages: string[];
+}
+
+export interface IContactsDataView {
+	email?: string;
+	phone?: string;
+	errorMessages: string[];
 }
 
 export interface IPage {

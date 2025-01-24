@@ -1,10 +1,10 @@
-import { View } from '../../types';
+import { IContactsDataView } from '../../types';
 import { EVENT, settings } from '../../utils/constants';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 
-export class ContactsView extends Component<View> {
+export class ContactsView extends Component<IContactsDataView> {
 	protected _events: IEvents;
 	protected _email: HTMLInputElement;
 	protected _phone: HTMLInputElement;
@@ -15,10 +15,16 @@ export class ContactsView extends Component<View> {
 		super(container);
 		this._events = events;
 
-		this._email = ensureElement<HTMLInputElement>(settings.order.email, container);
-		this._phone = ensureElement<HTMLInputElement>(settings.order.phone, container);
+		this._email = ensureElement<HTMLInputElement>(
+			settings.order.email,
+			container
+		);
+		this._phone = ensureElement<HTMLInputElement>(
+			settings.order.phone,
+			container
+		);
 		this._formError = ensureElement(settings.order.formErrors, container);
-    this._submitButton = ensureElement(settings.order.submitButton, container);
+		this._submitButton = ensureElement(settings.order.submitButton, container);
 
 		this._email.addEventListener('input', (evt) => {
 			evt.preventDefault();
@@ -33,10 +39,10 @@ export class ContactsView extends Component<View> {
 		this.container.addEventListener('submit', (evt) => {
 			evt.preventDefault();
 			this.checkForm();
-      events.emit(EVENT.OrderDataReady, {
-        email: this._email.value, 
-        phone: this._phone.value
-      });
+			events.emit(EVENT.OrderDataReady, {
+				email: this._email.value,
+				phone: this._phone.value,
+			});
 		});
 	}
 
@@ -46,7 +52,7 @@ export class ContactsView extends Component<View> {
 	}
 
 	private checkForm() {
-		const isValid = this.isValid(this._formError, this._email, this._phone);
+		const isValid = false; //this.isValid(this._formError, this._email, this._phone);
 
 		if (isValid) {
 			this.setDisabled(this._submitButton, false);

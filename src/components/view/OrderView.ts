@@ -1,6 +1,6 @@
 import { PaymentType, IDeliveryDataView } from '../../types';
 import { EVENT, settings } from '../../utils/constants';
-import { ensureElement } from '../../utils/utils';
+import { ensureElement, joinStringElements } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 
@@ -16,7 +16,6 @@ export class OrderView extends Component<IDeliveryDataView> {
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
 		this._events = events;
-
 		this._address = ensureElement<HTMLInputElement>(
 			settings.order.address,
 			container
@@ -29,17 +28,14 @@ export class OrderView extends Component<IDeliveryDataView> {
 		this._submitButton = ensureElement(settings.order.buttonToOrder, container);
 		this._formError = ensureElement(settings.order.formErrors, container);
 
-		/*	this.setDisabled(
-			this._submitButton,
-			!(this._selectedPaymentType !== null && this._address.value !== null)
-		); */
-
 		this._payOnline.addEventListener('click', () => {
 			this.paymentType = PaymentType.ONLINE;
+			this.emitDataChangedEvent();
 		});
 
 		this._payOnReceiving.addEventListener('click', () => {
 			this.paymentType = PaymentType.ON_RECEIVING;
+			this.emitDataChangedEvent();
 		});
 
 		this._address.addEventListener('input', (evt) => {
@@ -48,7 +44,6 @@ export class OrderView extends Component<IDeliveryDataView> {
 		});
 
 		this.container.addEventListener('submit', () => {
-			//this.isValid(this._formError, this._address);
 			this._events.emit(EVENT.OrderDeliveryDataReady, {
 				address: this._address.value,
 				payment: this._selectedPaymentType,
@@ -56,14 +51,10 @@ export class OrderView extends Component<IDeliveryDataView> {
 		});
 	}
 
-	set isValid(isValid: boolean) {
-		this.setDisabled(this._submitButton, !isValid);
-	}
-
 	set errorMessages(errorMsg: string[]) {
 		if (errorMsg && errorMsg.length > 0) {
+			this._formError.replaceChildren(joinStringElements(errorMsg));
 			this.setVisible(this._formError);
-			this.setText(this._formError, errorMsg[0]);
 			this.setDisabled(this._submitButton, true);
 		} else {
 			this.setHidden(this._formError);
@@ -72,15 +63,8 @@ export class OrderView extends Component<IDeliveryDataView> {
 		}
 	}
 
-	clear() {
-		this._address.value = '';
-		//this.aymentType(null);
-	}
-
 	set address(address: string) {
-		if (address) {
-			this._address.value = address;
-		}
+		this._address.value = address ?? '';
 	}
 
 	set paymentType(paymentType: PaymentType) {
@@ -95,7 +79,6 @@ export class OrderView extends Component<IDeliveryDataView> {
 			settings.order.classes.buttonActive,
 			paymentType === PaymentType.ON_RECEIVING
 		);
-		this.emitDataChangedEvent();
 	}
 
 	emitDataChangedEvent() {

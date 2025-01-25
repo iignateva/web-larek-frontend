@@ -5,19 +5,18 @@ import {
 	PaymentType,
 } from '../../types';
 import { EVENT, settings } from '../../utils/constants';
+import { isEmpty } from '../../utils/utils';
 import { Model } from '../base/Model';
 import { IEvents } from '../base/events';
 
 export class Order extends Model<IOrder> {
-	protected _payment: PaymentType;
+	protected _payment: PaymentType | null;
 	protected _address: string;
-	items: string[];
-	total: number;
-	email?: string;
-	phone?: string;
+	protected _email: string;
+	protected _phone: string;
 
 	constructor(events: IEvents) {
-		super({ items: [], total: 0 }, events);
+		super({}, events);
 	}
 
 	set address(address: string) {
@@ -38,6 +37,31 @@ export class Order extends Model<IOrder> {
 		return this._payment;
 	}
 
+	set email(email: string) {
+		this._email = email;
+		this.checkContactsData();
+	}
+
+	get email() {
+		return this._email;
+	}
+
+	set phone(phone: string) {
+		this._phone = phone;
+		this.checkContactsData();
+	}
+
+	get phone() {
+		return this._phone;
+	}
+
+	clear() {
+		this._address = '';
+		this._email = '';
+		this._payment = null;
+		this._phone = '';
+	}
+
 	checkDeliveryData() {
 		this.checkDataFilled({
 			event: EVENT.OrderDeliveryDataChecked,
@@ -48,10 +72,20 @@ export class Order extends Model<IOrder> {
 		});
 	}
 
+	checkContactsData() {
+		this.checkDataFilled({
+			event: EVENT.OrderContactsDataChecked,
+			fields: [
+				{ field: this.email, errorMsg: settings.orderEmailDataErrorMsg },
+				{ field: this.phone, errorMsg: settings.orderPhoneDataErrorMsg },
+			],
+		});
+	}
+
 	private checkDataFilled(data: OrderDataOnCheck) {
 		const errorMessages: string[] = [];
 		data.fields.forEach(({ field, errorMsg }) => {
-			if (!field || field === null || field.trim() === '') {
+			if (isEmpty(field) || field.trim() === '') {
 				errorMessages.push(errorMsg);
 			}
 		});

@@ -16,12 +16,12 @@ import { cloneTemplate, ensureElement } from './utils/utils';
 import {
 	IApiErrorResponse,
 	ICatalogItemView,
+	IContactsDataView,
 	IDeliveryDataView,
 	IItems,
 	IOrder,
 	IOrderResponse,
 	IProduct,
-	PaymentType,
 	WebLarekApi,
 } from './types';
 import { CatalogItemPreview } from './components/view/CatalogItemPreview';
@@ -68,12 +68,10 @@ const previewCatalogItem = new CatalogItemPreview(productPreviewModal, events);
 const shoppingCartModal = cloneTemplate(basketTemplate);
 const shoppingCartView = new ShoppingCartView(shoppingCartModal, events);
 const orderModalView = new OrderView(cloneTemplate(orderTemplate), events);
-
 const contactsModalView = new ContactsView(
 	cloneTemplate(contactsTemplate),
 	events
 );
-
 const successModal = new SuccessOrderView(
 	cloneTemplate(successTemplate),
 	events
@@ -93,94 +91,87 @@ events.on(EVENT.CatalogChanged, (products: IItems<IProduct>) => {
 });
 
 events.on(EVENT.ShoppingCartOpening, () => {
-	renderShoppingCartModal();
+	modal.render({
+		content: shoppingCartView.render({
+			items: getShoppingCartItems(),
+			total: shoppingCart.total,
+		}),
+	});
 });
+
+function getShoppingCartItems(): HTMLElement[] {
+	return shoppingCart.items.map((item, index) => {
+		const itemContainer = cloneTemplate(cardBasketTemplate);
+		return new ShoppingCartItem(itemContainer, events).render({
+			index: index + 1,
+			...item,
+		});
+	});
+}
 
 events.on(EVENT.CatalogItemPreviewOpening, (item: ICatalogItemView) => {
 	const inShoppingCart = shoppingCart.contains(item.id);
-	renderCatalogItemPreviewModal(item, inShoppingCart);
-});
-
-events.on(
-	EVENT.CatalogItemToShoppingCartClicked,
-	(item: ICatalogItemView) => {
-		const inShoppingCart = shoppingCart.contains(item.id);
-		if (inShoppingCart) {
-			shoppingCart.deleteItem(item.id);
-		} else {
-			shoppingCart.addItem(item);
-		}
-		renderCatalogItemPreviewModal(item, !inShoppingCart);
-	}
-);
-
-function renderCatalogItemPreviewModal(
-	item: ICatalogItemView,
-	inShoppingCart: boolean
-) {
 	previewCatalogItem.inShoppingCart = inShoppingCart;
 	modal.render({
 		content: previewCatalogItem.render({ ...item }),
 	});
-}
-
-events.on(EVENT.ShoppingCartItemDelete, ({ id }: { id: string }) => {
-	deleteFromShoppingCart(id);
-	renderShoppingCartModal();
 });
 
-function deleteFromShoppingCart(id: string) {
+events.on(EVENT.CatalogItemToShoppingCartClicked, (item: ICatalogItemView) => {
+	const inShoppingCart = shoppingCart.contains(item.id);
+	if (inShoppingCart) {
+		shoppingCart.deleteItem(item.id);
+	} else {
+		shoppingCart.addItem(item);
+	}
+	previewCatalogItem.inShoppingCart = shoppingCart.contains(item.id);
+});
+
+events.on(EVENT.ShoppingCartItemDelete, ({ id }: { id: string }) => {
 	shoppingCart.deleteItem(id);
-}
-
-function renderShoppingCartModal() {
-	const shoppingCartItems = shoppingCart.items.map((item, index) => {
-		const itemContainer = cloneTemplate(cardBasketTemplate);
-		return new ShoppingCartItem(itemContainer, events).render({
-			index: index + 1,
-			...item
-		});
-	});
-
-	modal.render({
-		content: shoppingCartView.render({
-			items: shoppingCartItems,
-			total: shoppingCart.total,
-		}),
-	});
-}
+	shoppingCartView.items = getShoppingCartItems();
+	shoppingCartView.total = shoppingCart.total;
+});
 
 events.on(EVENT.ShoppingCartCreateOrder, () => {
 	modal.render({
 		content: orderModalView.render({
 			address: order.address,
-			paymentType: order.payment
+			paymentType: order.payment,
 		}),
 	});
+	order.checkDeliveryData();
 });
 
 events.on(EVENT.OrderDeliveryDataReady, (data: Partial<IOrder>) => {
-	Object.assign(order, {
-		total: shoppingCart.total,
-		items: shoppingCart.itemIds,
-		...data,
-	});
+	Object.assign(order, data);
 
 	modal.render({
-		content: contactsModalView.render(),
+		content: contactsModalView.render({
+			phone: order.phone,
+			email: order.email,
+		}),
 	});
+	order.checkContactsData();
 });
 
 events.on(EVENT.OrderDataReady, (data: Partial<IOrder>) => {
 	Object.assign(order, data ?? {});
-
+	const orderRequest = {
+		payment: order.payment,
+		email: order.email,
+		phone: order.phone,
+		address: order.address,
+		total: shoppingCart.total,
+		items: shoppingCart.items.map((it) => it.id),
+	};
 	api
-		.confirmOrder(order)
+		.confirmOrder(orderRequest)
 		.then((data) => {
 			if (Object.keys('id')) {
 				modal.render({
 					content: successModal.render({
-						totalPrice: order.total,
+						totalPrice: orderRequest.total,
 						orderNumber: (data as IOrderResponse).id,
 					}),
 				});
@@ -194,8 +185,11 @@ events.on(EVENT.OrderDataReady, (data: Partial<IOrder>) => {
 
 events.on(EVENT.OrderSuccesfullyDone, () => {
 	shoppingCart.clear();
-	orderModalView.clear();
-	contactsModalView.clear();
+	order.clear();
+	orderModalView.address = order.address;
+	orderModalView.paymentType = order.payment;
+	contactsModalView.email = order.email;
+	contactsModalView.phone = order.phone;
 });
 
 events.on(EVENT.ShoppingCartCountChanged, () => {
@@ -223,9 +217,19 @@ events.on(
 );
 
 events.on(EVENT.OrderDeliveryDataChecked, (data: IDeliveryDataView) => {
-	modal.render({
-		content: orderModalView.render( {errorMessages: data.errorMessages}),
-	});
+	orderModalView.errorMessages = data.errorMessages;
+});
+
+events.on(
+	EVENT.OrderContactsDataChanged,
+	(data: Partial<IContactsDataView>) => {
+		order.email = data.email;
+		order.phone = data.phone;
+	}
+);
+
+events.on(EVENT.OrderContactsDataChecked, (data: IContactsDataView) => {
+	contactsModalView.errorMessages = data.errorMessages;
 });
 
 // Получаем лоты с сервера

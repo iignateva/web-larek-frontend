@@ -38,10 +38,10 @@ export interface IItems<T> {
 }
 
 export interface IOrder {
-	payment?: PaymentType;
-	email?: string;
-	phone?: string;
-	address?: string;
+	payment: PaymentType;
+	email: string;
+	phone: string;
+	address: string;
 	total: number;
 	items: string[];
 }
@@ -106,12 +106,6 @@ export interface IModal {
 	content: HTMLElement;
 }
 
-export interface IOrderView {
-	clear(): void;
-	errorMessage: string[];
-	isValid: boolean;
-}
-
 export interface IDeliveryDataView {
 	address: string;
 	paymentType: PaymentType;
@@ -119,8 +113,8 @@ export interface IDeliveryDataView {
 }
 
 export interface IContactsDataView {
-	email?: string;
-	phone?: string;
+	email: string;
+	phone: string;
 	errorMessages: string[];
 }
 

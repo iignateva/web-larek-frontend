@@ -1,6 +1,6 @@
 import { IContactsDataView } from '../../types';
 import { EVENT, settings } from '../../utils/constants';
-import { ensureElement } from '../../utils/utils';
+import { ensureElement, joinStringElements } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 
@@ -28,17 +28,16 @@ export class ContactsView extends Component<IContactsDataView> {
 
 		this._email.addEventListener('input', (evt) => {
 			evt.preventDefault();
-			this.checkForm();
+			this.emitDataChangedEvent();
 		});
 
 		this._phone.addEventListener('input', (evt) => {
 			evt.preventDefault();
-			this.checkForm();
+			this.emitDataChangedEvent();
 		});
 
 		this.container.addEventListener('submit', (evt) => {
 			evt.preventDefault();
-			this.checkForm();
 			events.emit(EVENT.OrderDataReady, {
 				email: this._email.value,
 				phone: this._phone.value,
@@ -46,18 +45,30 @@ export class ContactsView extends Component<IContactsDataView> {
 		});
 	}
 
-	clear() {
-		this._email.value = '';
-		this._phone.value = '';
+	set email(email: string) {
+		this._email.value = email ?? '';
 	}
 
-	private checkForm() {
-		const isValid = false; //this.isValid(this._formError, this._email, this._phone);
+	set phone(phone: string) {
+		this._phone.value = phone ?? '';
+	}
 
-		if (isValid) {
-			this.setDisabled(this._submitButton, false);
-		} else {
+	set errorMessages(errorMsg: string[]) {
+		if (errorMsg && errorMsg.length > 0) {
+			this.setVisible(this._formError);
+			this._formError.replaceChildren(joinStringElements(errorMsg));
 			this.setDisabled(this._submitButton, true);
+		} else {
+			this.setHidden(this._formError);
+			this.setText(this._formError, '');
+			this.setDisabled(this._submitButton, false);
 		}
+	}
+
+	emitDataChangedEvent() {
+		this._events.emit(EVENT.OrderContactsDataChanged, {
+			email: this._email.value,
+			phone: this._phone.value,
+		});
 	}
 }

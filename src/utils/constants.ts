@@ -87,6 +87,8 @@ export const settings = {
 	units: 'синапсов',
 	orderAddressDataErrorMsg: 'Введите адрес доставки',
 	orderPaymentDataErrorMsg: 'Выберите тип платежа',
+	orderEmailDataErrorMsg: 'Введите почтовый адрес',
+	orderPhoneDataErrorMsg: 'Введите номер телефона',
 };
 
 export enum EVENT {
@@ -106,4 +108,6 @@ export enum EVENT {
 
 	OrderDeliveryDataChanged = 'order:delivery:data:changed',
 	OrderDeliveryDataChecked = 'order:delivery:data:checked',
+	OrderContactsDataChanged = 'order:contacts:data:changed',
+	OrderContactsDataChecked = 'order:contacts:data:checked',
 }

@@ -14,12 +14,15 @@ export class SuccessOrderView extends Component<ISuccessOrder> {
 		super(container);
 		this._orderNumber = ensureElement(settings.order.success.title, container);
 		this._totalPrice = ensureElement(settings.order.success.desc, container);
-		this._buttonSuccess = ensureElement(settings.order.success.closeButton, container);
+		this._buttonSuccess = ensureElement(
+			settings.order.success.closeButton,
+			container
+		);
 		this._events = events;
 
 		this._buttonSuccess.addEventListener('click', () => {
 			this._events.emit(EVENT.NeedCloseModalView);
-		})
+		});
 	}
 
 	set totalPrice(totalPrice: number) {

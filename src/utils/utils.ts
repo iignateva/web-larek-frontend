@@ -10,6 +10,15 @@ export function isEmpty(value: any): boolean {
     return value === null || value === undefined;
 }
 
+export function joinStringElements(messages: string[]) {
+    let joinedMessages: HTMLElement[] = [];
+    for (let msg of messages) {
+        joinedMessages.push(createElement('span', { textContent: msg }));
+        joinedMessages.push(createElement('br'));
+    }
+    return createElement('div', {}, joinedMessages)
+}
+
 export type SelectorCollection<T> = string | NodeListOf<Element> | T[];
 
 export function ensureAllElements<T extends HTMLElement>(selectorElement: SelectorCollection<T>, context: HTMLElement = document as unknown as HTMLElement): T[] {
